@@ -1,0 +1,75 @@
+.appContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+}
+
+.mainContent {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1360px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.calendarSection {
+  min-width: 0;
+}
+
+.sidebarSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Floating Action Button */
+.fabButton {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  transition: all var(--transition-fast);
+}
+
+.fabButton:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebarSection {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .mainContent {
+    padding: 0.75rem;
+  }
+
+  .fabButton {
+    display: inline-flex;
+  }
+}

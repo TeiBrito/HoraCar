@@ -1,0 +1,269 @@
+.calendarContainer {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.monthTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.yearText {
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+.navControls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.todayButton {
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.todayButton:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.btnGroup {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  overflow: hidden;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.navButton:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.navButton:first-child {
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Week header */
+.weekGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--bg-surface-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.weekDayCell {
+  padding: 0.65rem 0.25rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Days Grid */
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--border-subtle);
+  gap: 1px;
+}
+
+.dayCell {
+  min-height: 105px;
+  background: var(--bg-surface);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  position: relative;
+}
+
+.dayCell:hover {
+  background: var(--bg-surface-elevated);
+}
+
+.otherMonth {
+  background: rgba(12, 14, 20, 0.6);
+  opacity: 0.35;
+  cursor: default;
+}
+
+.otherMonth:hover {
+  background: rgba(12, 14, 20, 0.6);
+}
+
+.cellHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dayNumber {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.todayNumber {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  font-weight: 600;
+}
+
+.todayCell {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.addSlotBtn {
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  transition: all var(--transition-fast);
+}
+
+.dayCell:hover .addSlotBtn {
+  opacity: 1;
+}
+
+.addSlotBtn:hover {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+}
+
+/* Pills Container */
+.bookingPillsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.bookingPill {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.bookingPill:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.pillTei {
+  background: var(--tei-surface);
+  border-color: var(--tei-border);
+  color: var(--tei-text);
+}
+
+.pillAdan {
+  background: var(--adan-surface);
+  border-color: var(--adan-border);
+  color: var(--adan-text);
+}
+
+.pillHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+.driverName {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.slotTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.68rem;
+  opacity: 0.85;
+}
+
+.pillNote {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+@media (max-width: 768px) {
+  .dayCell {
+    min-height: 80px;
+    padding: 0.35rem 0.25rem;
+  }
+
+  .slotLabelText {
+    display: none;
+  }
+
+  .pillNote {
+    display: none;
+  }
+
+  .addSlotBtn {
+    display: none;
+  }
+}

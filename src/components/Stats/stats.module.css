@@ -1,0 +1,135 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.totalBadge {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Split Bar */
+.barContainer {
+  height: 8px;
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: flex;
+  width: 100%;
+}
+
+.barTei {
+  background: var(--tei-accent);
+  transition: width var(--transition-smooth);
+}
+
+.barAdan {
+  background: var(--adan-accent);
+  transition: width var(--transition-smooth);
+}
+
+/* Drivers Grid */
+.driversGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.driverCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.indicatorTei {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tei-accent);
+}
+
+.indicatorAdan {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--adan-accent);
+}
+
+.driverName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex: 1;
+  margin-left: 0.4rem;
+}
+
+.percentText {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cardValue {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.countNumber {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.countLabel {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.cardTei {
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.cardAdan {
+  border-color: rgba(16, 185, 129, 0.2);
+}

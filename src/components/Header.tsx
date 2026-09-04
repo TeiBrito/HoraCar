@@ -22,8 +22,12 @@ export const Header: React.FC<HeaderProps> = ({
     <header className={styles.header}>
       <div className={styles.topRow}>
         <div className={styles.brand}>
-          <div className={styles.brandIcon}>
-            <Car size={20} strokeWidth={2.2} />
+          <div className={styles.brandIconWrapper}>
+            <img
+              src="/logo.jpg"
+              alt="HoraCar Vintage Logo"
+              className={styles.brandLogoImg}
+            />
           </div>
           <div>
             <h1 className={styles.title}>HoraCar</h1>

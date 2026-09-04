@@ -6,7 +6,8 @@ export const metadata: Metadata = {
   description: 'Aplicación minimalista y ágil para coordinar el uso compartido del coche entre Tei y Adán en tiempo real.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/logo.jpg',
+    apple: '/logo.jpg',
   },
 };
 

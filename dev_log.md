@@ -21,3 +21,4 @@
   - `README.md` & `.gitignore`: Guía de despliegue directo en Vercel.
   - `package.json`: Configurado puerto de desarrollo alternativo `3030` (`next dev -p 3030`).
   - `BookingModal`: Añadido selector de **Rango de días / Varios días** con atajos rápidos (+ Fin de semana, + 3 días, + 1 semana) y detección de conflictos acumulada.
+  - **Repositorio GitHub creado**: [https://github.com/TeiBrito/HoraCar](https://github.com/TeiBrito/HoraCar) (rama `main`).

@@ -6,6 +6,8 @@ import { CalendarView } from '@/components/Calendar/CalendarView';
 import { UpcomingList } from '@/components/Upcoming/UpcomingList';
 import { StatsSummary } from '@/components/Stats/StatsSummary';
 import { BookingModal } from '@/components/BookingModal/BookingModal';
+import { MaintenanceSection } from '@/components/Maintenance/MaintenanceSection';
+import { MaintenanceModal } from '@/components/Maintenance/MaintenanceModal';
 import { FirebaseConfigModal } from '@/components/FirebaseModal/FirebaseConfigModal';
 import {
   subscribeToBookings,
@@ -13,33 +15,63 @@ import {
   saveBookingRange,
   removeBooking,
 } from '@/lib/bookingsService';
+import {
+  subscribeToMaintenance,
+  saveMaintenance,
+  toggleMaintenanceCompleted,
+  removeMaintenance,
+} from '@/lib/maintenanceService';
 import { isFirebaseConfigured } from '@/lib/firebase';
-import { Booking, DriverId, TimeSlot } from '@/types';
+import {
+  Booking,
+  DriverId,
+  TimeSlot,
+  MaintenanceItem,
+  MaintenanceType,
+  MaintenanceResponsible,
+} from '@/types';
 import { Plus } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function HomePage() {
+  const [activeView, setActiveView] = useState<'calendar' | 'maintenance'>('calendar');
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [maintenanceItems, setMaintenanceItems] = useState<MaintenanceItem[]>([]);
   const [filterDriver, setFilterDriver] = useState<DriverId | 'all'>('all');
+  
+  // Booking Modal states
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [editingBooking, setEditingBooking] = useState<Booking | undefined>(undefined);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState<boolean>(false);
+
+  // Maintenance Modal states
+  const [editingMaintenance, setEditingMaintenance] = useState<MaintenanceItem | undefined>(undefined);
+  const [isMaintModalOpen, setIsMaintModalOpen] = useState<boolean>(false);
+
+  // Config Modal
   const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   useEffect(() => {
     setIsMounted(true);
-    const unsubscribe = subscribeToBookings((updatedBookings) => {
-      setBookings(updatedBookings);
+    const unsubBookings = subscribeToBookings((updated) => {
+      setBookings(updated);
     });
 
-    return () => unsubscribe();
+    const unsubMaint = subscribeToMaintenance((updated) => {
+      setMaintenanceItems(updated);
+    });
+
+    return () => {
+      unsubBookings();
+      unsubMaint();
+    };
   }, []);
 
   const handleOpenDate = (dateStr: string, existing?: Booking) => {
     setSelectedDate(dateStr);
     setEditingBooking(existing);
-    setIsModalOpen(true);
+    setIsBookingModalOpen(true);
   };
 
   const handleSaveBooking = async (data: {
@@ -66,10 +98,49 @@ export default function HomePage() {
     await removeBooking(id);
   };
 
-  const handleQuickAdd = () => {
-    const today = new Date().toISOString().split('T')[0];
-    handleOpenDate(today);
+  // Maintenance Handlers
+  const handleOpenNewMaintenance = () => {
+    setEditingMaintenance(undefined);
+    setIsMaintModalOpen(true);
   };
+
+  const handleEditMaintenance = (item: MaintenanceItem) => {
+    setEditingMaintenance(item);
+    setIsMaintModalOpen(true);
+  };
+
+  const handleSaveMaintenance = async (data: {
+    id?: string;
+    type: MaintenanceType;
+    title: string;
+    date: string;
+    responsible: MaintenanceResponsible;
+    kilometers?: number;
+    cost?: number;
+    notes?: string;
+    completed?: boolean;
+  }) => {
+    await saveMaintenance(data);
+  };
+
+  const handleToggleMaintCompleted = async (id: string, completed: boolean) => {
+    await toggleMaintenanceCompleted(id, completed);
+  };
+
+  const handleDeleteMaintenance = async (id: string) => {
+    await removeMaintenance(id);
+  };
+
+  const handleQuickAdd = () => {
+    if (activeView === 'maintenance') {
+      handleOpenNewMaintenance();
+    } else {
+      const today = new Date().toISOString().split('T')[0];
+      handleOpenDate(today);
+    }
+  };
+
+  const pendingMaintenanceCount = maintenanceItems.filter((m) => !m.completed).length;
 
   if (!isMounted) {
     return null;
@@ -79,58 +150,90 @@ export default function HomePage() {
     <div className={styles.appContainer}>
       <Header
         isCloudConnected={isFirebaseConfigured}
+        activeView={activeView}
+        onViewChange={setActiveView}
         filterDriver={filterDriver}
         onFilterChange={setFilterDriver}
         onOpenFirebaseConfig={() => setIsFirebaseModalOpen(true)}
+        pendingMaintenanceCount={pendingMaintenanceCount}
       />
 
       <main className={styles.mainContent}>
-        <div className={styles.grid}>
-          {/* Main Calendar View */}
-          <section className={styles.calendarSection}>
-            <CalendarView
-              bookings={bookings}
-              filterDriver={filterDriver}
-              onSelectDate={handleOpenDate}
+        {activeView === 'calendar' ? (
+          <div className={styles.grid}>
+            {/* Main Calendar View */}
+            <section className={styles.calendarSection}>
+              <CalendarView
+                bookings={bookings}
+                maintenanceItems={maintenanceItems}
+                filterDriver={filterDriver}
+                onSelectDate={handleOpenDate}
+                onSelectMaintenance={handleEditMaintenance}
+              />
+            </section>
+
+            {/* Sidebar: Stats + Upcoming */}
+            <aside className={styles.sidebarSection}>
+              <StatsSummary bookings={bookings} />
+              <UpcomingList
+                bookings={bookings}
+                filterDriver={filterDriver}
+                onEditBooking={(b) => handleOpenDate(b.date, b)}
+                onDeleteBooking={handleDeleteBooking}
+              />
+            </aside>
+          </div>
+        ) : (
+          /* Maintenance & ITV Section */
+          <section className={styles.maintFullSection}>
+            <MaintenanceSection
+              items={maintenanceItems}
+              onAddNew={handleOpenNewMaintenance}
+              onEdit={handleEditMaintenance}
+              onToggleCompleted={handleToggleMaintCompleted}
+              onDelete={handleDeleteMaintenance}
             />
           </section>
-
-          {/* Sidebar: Stats + Upcoming */}
-          <aside className={styles.sidebarSection}>
-            <StatsSummary bookings={bookings} />
-            <UpcomingList
-              bookings={bookings}
-              filterDriver={filterDriver}
-              onEditBooking={(b) => handleOpenDate(b.date, b)}
-              onDeleteBooking={handleDeleteBooking}
-            />
-          </aside>
-        </div>
+        )}
       </main>
 
-      {/* Floating Action Button for mobile quick booking */}
+      {/* Floating Action Button for mobile quick action */}
       <button
         onClick={handleQuickAdd}
         className={styles.fabButton}
-        title="Reservar turno hoy"
+        title={activeView === 'maintenance' ? 'Añadir Mantenimiento' : 'Reservar turno'}
       >
         <Plus size={20} strokeWidth={2.4} />
-        <span className={styles.fabText}>Añadir Turno</span>
+        <span className={styles.fabText}>
+          {activeView === 'maintenance' ? 'Nuevo Mantenimiento' : 'Añadir Turno'}
+        </span>
       </button>
 
       {/* Booking Form Modal */}
       <BookingModal
-        isOpen={isModalOpen}
+        isOpen={isBookingModalOpen}
         selectedDate={selectedDate}
         existingBooking={editingBooking}
         allBookings={bookings}
         onClose={() => {
-          setIsModalOpen(false);
+          setIsBookingModalOpen(false);
           setEditingBooking(undefined);
         }}
         onSave={handleSaveBooking}
         onSaveRange={handleSaveBookingRange}
         onDelete={handleDeleteBooking}
+      />
+
+      {/* Maintenance Form Modal */}
+      <MaintenanceModal
+        isOpen={isMaintModalOpen}
+        itemToEdit={editingMaintenance}
+        onClose={() => {
+          setIsMaintModalOpen(false);
+          setEditingMaintenance(undefined);
+        }}
+        onSave={handleSaveMaintenance}
+        onDelete={handleDeleteMaintenance}
       />
 
       {/* Firebase Cloud Info Modal */}
@@ -142,4 +245,3 @@ export default function HomePage() {
     </div>
   );
 }
-

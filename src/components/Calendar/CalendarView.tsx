@@ -11,14 +11,18 @@ import {
   Sunset,
   Moon,
   CheckCircle2,
+  Wrench,
+  ShieldCheck,
 } from 'lucide-react';
-import { Booking, DriverId, DRIVERS, TIME_SLOT_LABELS } from '@/types';
+import { Booking, DriverId, MaintenanceItem, DRIVERS, TIME_SLOT_LABELS } from '@/types';
 import styles from './calendar.module.css';
 
 interface CalendarViewProps {
   bookings: Booking[];
+  maintenanceItems?: MaintenanceItem[];
   filterDriver: DriverId | 'all';
   onSelectDate: (dateStr: string, existingBooking?: Booking) => void;
+  onSelectMaintenance?: (item: MaintenanceItem) => void;
 }
 
 const MONTH_NAMES = [
@@ -40,8 +44,10 @@ const WEEK_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
   bookings,
+  maintenanceItems,
   filterDriver,
   onSelectDate,
+  onSelectMaintenance,
 }) => {
   const [currentDate, setCurrentDate] = useState(() => new Date());
 
@@ -166,6 +172,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               ? dayBookings
               : dayBookings.filter((b) => b.driver === filterDriver);
 
+          // Find maintenance for this day
+          const dayMaintenance = (maintenanceItems || []).filter(
+            (m) => m.date === dateStr && !m.completed
+          );
+
           return (
             <div
               key={`curr-${day}`}
@@ -187,6 +198,22 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   <Plus size={13} strokeWidth={2.4} />
                 </button>
               </div>
+
+              {/* Maintenance Notice on Calendar Cell */}
+              {dayMaintenance.map((m) => (
+                <div
+                  key={m.id}
+                  className={styles.maintPill}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onSelectMaintenance) onSelectMaintenance(m);
+                  }}
+                  title={`${m.title} (${m.responsible ? `Lleva: ${m.responsible}` : 'Mantenimiento'})`}
+                >
+                  <Wrench size={10} />
+                  <span className={styles.maintPillText}>{m.title}</span>
+                </div>
+              ))}
 
               {/* Booking Pills */}
               <div className={styles.bookingPillsContainer}>

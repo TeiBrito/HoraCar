@@ -23,3 +23,13 @@
   - `BookingModal`: Añadido selector de **Rango de días / Varios días** con atajos rápidos (+ Fin de semana, + 3 días, + 1 semana) y detección de conflictos acumulada.
   - **Identidad visual**: Creado logo vintage clásico automovilístico (emblema con silueta clásica y reloj heritage) integrado en favicon, cabecera de la app y manifest PWA (`/logo.jpg`).
   - **Repositorio GitHub**: [https://github.com/TeiBrito/HoraCar](https://github.com/TeiBrito/HoraCar) (rama `main`).
+
+## Sesión: 2026-09-05
+- **Objetivo**: Añadir módulo de mantenimiento del vehículo: ITV, Revisiones de taller, Seguro, Neumáticos y Gastos/Varios.
+- **Implementado**:
+  - `src/types/index.ts`: Añadidos tipos `MaintenanceItem`, `MaintenanceType` ('itv' | 'revision' | 'insurance' | 'tires' | 'other') y `MaintenanceResponsible` ('tei' | 'adan' | 'both' | 'none').
+  - `src/lib/maintenanceService.ts`: Servicio reactivo con Firebase Firestore y fallback en `localStorage`.
+  - `src/components/Maintenance/MaintenanceSection.tsx`: Vista con pestañas (Pendientes vs Historial), contadores de urgencia/días restantes y badge de conductor encargado.
+  - `src/components/Maintenance/MaintenanceModal.tsx`: Modal para crear/editar mantenimientos con selección de tipo, fecha, encargado, coste y kilometraje.
+  - `src/components/Calendar/CalendarView.tsx`: Integración de avisos de taller e ITV directamente en los días del calendario.
+  - `src/components/Header.tsx`: Pestañas para alternar entre "Turnos y Calendario" y "Mantenimiento & ITV" con contador de alertas pendientes.

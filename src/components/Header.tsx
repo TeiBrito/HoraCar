@@ -1,22 +1,33 @@
 'use client';
 
 import React from 'react';
-import { Car, Radio, ShieldCheck, Database, Calendar as CalendarIcon, ListFilter } from 'lucide-react';
+import {
+  Calendar as CalendarIcon,
+  Wrench,
+  ListFilter,
+  Database,
+} from 'lucide-react';
 import { DriverId } from '@/types';
 import styles from './header.module.css';
 
 interface HeaderProps {
   isCloudConnected: boolean;
+  activeView: 'calendar' | 'maintenance';
+  onViewChange: (view: 'calendar' | 'maintenance') => void;
   filterDriver: DriverId | 'all';
   onFilterChange: (driver: DriverId | 'all') => void;
   onOpenFirebaseConfig: () => void;
+  pendingMaintenanceCount: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   isCloudConnected,
+  activeView,
+  onViewChange,
   filterDriver,
   onFilterChange,
   onOpenFirebaseConfig,
+  pendingMaintenanceCount,
 }) => {
   return (
     <header className={styles.header}>
@@ -31,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <h1 className={styles.title}>HoraCar</h1>
-            <p className={styles.subtitle}>Coordinación de vehículo</p>
+            <p className={styles.subtitle}>Coordinación & Mantenimiento</p>
           </div>
         </div>
 
@@ -54,33 +65,56 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
 
-      <div className={styles.filterRow}>
-        <div className={styles.filterGroup}>
-          <span className={styles.filterLabel}>
-            <ListFilter size={14} />
-            <span>Ver:</span>
-          </span>
+      {/* Main View Switcher & Filters Row */}
+      <div className={styles.bottomRow}>
+        <div className={styles.navTabs}>
           <button
-            className={`${styles.filterBtn} ${filterDriver === 'all' ? styles.filterActive : ''}`}
-            onClick={() => onFilterChange('all')}
+            className={`${styles.navTabBtn} ${activeView === 'calendar' ? styles.navTabActive : ''}`}
+            onClick={() => onViewChange('calendar')}
           >
-            Todos
+            <CalendarIcon size={15} />
+            <span>Turnos y Calendario</span>
           </button>
           <button
-            className={`${styles.filterBtn} ${styles.filterTei} ${filterDriver === 'tei' ? styles.filterActiveTei : ''}`}
-            onClick={() => onFilterChange('tei')}
+            className={`${styles.navTabBtn} ${activeView === 'maintenance' ? styles.navTabActive : ''}`}
+            onClick={() => onViewChange('maintenance')}
           >
-            <span className={styles.indicatorTei} />
-            Tei
-          </button>
-          <button
-            className={`${styles.filterBtn} ${styles.filterAdan} ${filterDriver === 'adan' ? styles.filterActiveAdan : ''}`}
-            onClick={() => onFilterChange('adan')}
-          >
-            <span className={styles.indicatorAdan} />
-            Adán
+            <Wrench size={15} />
+            <span>Mantenimiento & ITV</span>
+            {pendingMaintenanceCount > 0 && (
+              <span className={styles.maintAlertCount}>{pendingMaintenanceCount}</span>
+            )}
           </button>
         </div>
+
+        {activeView === 'calendar' && (
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>
+              <ListFilter size={14} />
+              <span>Ver:</span>
+            </span>
+            <button
+              className={`${styles.filterBtn} ${filterDriver === 'all' ? styles.filterActive : ''}`}
+              onClick={() => onFilterChange('all')}
+            >
+              Todos
+            </button>
+            <button
+              className={`${styles.filterBtn} ${styles.filterTei} ${filterDriver === 'tei' ? styles.filterActiveTei : ''}`}
+              onClick={() => onFilterChange('tei')}
+            >
+              <span className={styles.indicatorTei} />
+              Tei
+            </button>
+            <button
+              className={`${styles.filterBtn} ${styles.filterAdan} ${filterDriver === 'adan' ? styles.filterActiveAdan : ''}`}
+              onClick={() => onFilterChange('adan')}
+            >
+              <span className={styles.indicatorAdan} />
+              Adán
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

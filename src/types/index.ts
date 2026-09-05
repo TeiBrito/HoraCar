@@ -19,8 +19,8 @@ export const DRIVERS: Record<DriverId, DriverInfo> = {
     name: 'Tei',
     shortName: 'T',
     badgeColor: 'var(--color-driver-tei-badge)',
-    accentColor: 'var(--color-driver-tei)',
-    textColor: 'var(--color-driver-tei-text)',
+    accentColor: 'var(--tei-accent)',
+    textColor: 'var(--tei-text)',
     avatarBg: '#1e293b',
     avatarText: '#f8fafc',
   },
@@ -29,8 +29,8 @@ export const DRIVERS: Record<DriverId, DriverInfo> = {
     name: 'Adán',
     shortName: 'A',
     badgeColor: 'var(--color-driver-adan-badge)',
-    accentColor: 'var(--color-driver-adan)',
-    textColor: 'var(--color-driver-adan-text)',
+    accentColor: 'var(--adan-accent)',
+    textColor: 'var(--adan-text)',
     avatarBg: '#0f172a',
     avatarText: '#f8fafc',
   },
@@ -51,3 +51,50 @@ export interface Booking {
   note?: string;
   createdAt: number;
 }
+
+export type MaintenanceType = 'itv' | 'revision' | 'insurance' | 'tires' | 'other';
+export type MaintenanceResponsible = 'tei' | 'adan' | 'both' | 'none';
+
+export interface MaintenanceItem {
+  id: string;
+  type: MaintenanceType;
+  title: string;
+  date: string; // YYYY-MM-DD (fecha límite o cita)
+  responsible: MaintenanceResponsible; // Quién se encarga
+  kilometers?: number;
+  cost?: number;
+  notes?: string;
+  completed: boolean;
+  createdAt: number;
+}
+
+export const MAINTENANCE_TYPE_INFO: Record<
+  MaintenanceType,
+  { label: string; defaultTitle: string; iconName: string }
+> = {
+  itv: {
+    label: 'ITV',
+    defaultTitle: 'Inspección Técnica ITV',
+    iconName: 'ShieldCheck',
+  },
+  revision: {
+    label: 'Revisión / Taller',
+    defaultTitle: 'Revisión de Aceite y Filtros',
+    iconName: 'Wrench',
+  },
+  insurance: {
+    label: 'Seguro',
+    defaultTitle: 'Renovación de Póliza',
+    iconName: 'FileCheck',
+  },
+  tires: {
+    label: 'Neumáticos',
+    defaultTitle: 'Revisión / Cambio de Ruedas',
+    iconName: 'Disc',
+  },
+  other: {
+    label: 'Varios',
+    defaultTitle: 'Mantenimiento General',
+    iconName: 'Sliders',
+  },
+};

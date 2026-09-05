@@ -30,6 +30,11 @@
   gap: 1.5rem;
 }
 
+.maintFullSection {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 /* Floating Action Button */
 .fabButton {
   position: fixed;

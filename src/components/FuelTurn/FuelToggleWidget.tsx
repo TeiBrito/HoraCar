@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Fuel, Check, ArrowRightLeft, Sparkles } from 'lucide-react';
+import { Fuel, Check, ArrowRightLeft } from 'lucide-react';
 import { FuelTurnState, DriverId, DRIVERS } from '@/types';
 import styles from './fuelToggle.module.css';
 
@@ -64,37 +64,43 @@ export const FuelToggleWidget: React.FC<FuelToggleWidgetProps> = ({
       {/* Tactile Switch */}
       <div className={styles.switchWrapper}>
         <div className={styles.switchTrack}>
+          {/* Background Sliding Highlight */}
+          <div
+            className={`${styles.activeBackgroundSlider} ${
+              isTei ? styles.sliderTei : styles.sliderAdan
+            }`}
+          />
+
           {/* Tei Option */}
           <button
             type="button"
-            className={`${styles.driverSide} ${styles.teiSide} ${isTei ? styles.activeTei : ''}`}
+            className={`${styles.driverButton} ${isTei ? styles.activeDriverTei : ''}`}
             onClick={() => handleSelect('tei')}
             disabled={isUpdating}
           >
-            <span className={styles.driverDot} />
+            <span className={styles.driverDotTei} />
             <span className={styles.driverName}>Tei</span>
-            {isTei && <Check size={14} className={styles.checkIcon} />}
+            {isTei && (
+              <span className={styles.fuelBadgeTei} title="Le toca repostar a Tei">
+                <Fuel size={13} strokeWidth={2.4} />
+              </span>
+            )}
           </button>
-
-          {/* Slider Knob */}
-          <div
-            className={`${styles.sliderKnob} ${isTei ? styles.knobLeft : styles.knobRight}`}
-            onClick={handleMarkRefueled}
-            title="Toca para cambiar de turno"
-          >
-            <Fuel size={14} />
-          </div>
 
           {/* Adán Option */}
           <button
             type="button"
-            className={`${styles.driverSide} ${styles.adanSide} ${!isTei ? styles.activeAdan : ''}`}
+            className={`${styles.driverButton} ${!isTei ? styles.activeDriverAdan : ''}`}
             onClick={() => handleSelect('adan')}
             disabled={isUpdating}
           >
-            <span className={styles.driverDot} />
+            <span className={styles.driverDotAdan} />
             <span className={styles.driverName}>Adán</span>
-            {!isTei && <Check size={14} className={styles.checkIcon} />}
+            {!isTei && (
+              <span className={styles.fuelBadgeAdan} title="Le toca repostar a Adán">
+                <Fuel size={13} strokeWidth={2.4} />
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -115,8 +121,9 @@ export const FuelToggleWidget: React.FC<FuelToggleWidgetProps> = ({
           className={styles.passTurnBtn}
           title={`Marcar que ${currentDriverName} ya ha repostado`}
         >
-          <ArrowRightLeft size={12} />
+          <ArrowRightLeft size={13} />
           <span>He repostado (pasar a {nextDriverName})</span>
+          <Fuel size={13} className={styles.btnRightIcon} />
         </button>
       </div>
     </div>

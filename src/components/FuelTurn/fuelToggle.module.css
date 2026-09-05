@@ -63,92 +63,127 @@
   overflow: hidden;
 }
 
-.driverSide {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  font-size: 0.88rem;
-  font-weight: 600;
-  transition: all var(--transition-fast);
-  cursor: pointer;
-}
-
-.driverSide:hover {
-  color: var(--text-secondary);
-}
-
-.driverDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  opacity: 0.4;
-  transition: all var(--transition-fast);
-}
-
-.teiSide .driverDot {
-  background: var(--tei-accent);
-}
-
-.adanSide .driverDot {
-  background: var(--adan-accent);
-}
-
-.activeTei {
-  color: var(--tei-text);
-}
-
-.activeTei .driverDot {
-  opacity: 1;
-  box-shadow: 0 0 8px var(--tei-accent);
-}
-
-.activeAdan {
-  color: var(--adan-text);
-}
-
-.activeAdan .driverDot {
-  opacity: 1;
-  box-shadow: 0 0 8px var(--adan-accent);
-}
-
-.checkIcon {
-  margin-left: 2px;
-}
-
-/* Sliding Knob */
-.sliderKnob {
+/* Background Slider Pill */
+.activeBackgroundSlider {
   position: absolute;
   top: 0.35rem;
   bottom: 0.35rem;
   width: calc(50% - 0.35rem);
   border-radius: var(--radius-sm);
+  z-index: 1;
+  transition: transform var(--transition-smooth), background var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.sliderTei {
+  left: 0.35rem;
+  transform: translateX(0);
+  background: var(--tei-surface);
+  border: 1px solid var(--tei-border);
+}
+
+.sliderAdan {
+  left: 0.35rem;
+  transform: translateX(100%);
+  background: var(--adan-surface);
+  border: 1px solid var(--adan-border);
+}
+
+/* Driver Buttons */
+.driverButton {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
-  z-index: 1;
-  transition: all var(--transition-smooth);
+  gap: 0.55rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: color var(--transition-fast);
   cursor: pointer;
 }
 
-.knobLeft {
-  left: 0.35rem;
-  background: var(--tei-surface);
-  border: 1px solid var(--tei-border);
+.driverButton:hover {
+  color: var(--text-secondary);
+}
+
+.driverDotTei {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--tei-accent);
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+}
+
+.driverDotAdan {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--adan-accent);
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+}
+
+.activeDriverTei {
   color: var(--tei-text);
 }
 
-.knobRight {
-  left: calc(50%);
-  background: var(--adan-surface);
-  border: 1px solid var(--adan-border);
+.activeDriverTei .driverDotTei {
+  opacity: 1;
+  box-shadow: 0 0 6px var(--tei-accent);
+}
+
+.activeDriverAdan {
   color: var(--adan-text);
+}
+
+.activeDriverAdan .driverDotAdan {
+  opacity: 1;
+  box-shadow: 0 0 6px var(--adan-accent);
+}
+
+.driverName {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Fuel Badges placed to the right */
+.fuelBadgeTei {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.25);
+  color: var(--tei-text);
+  margin-left: 0.25rem;
+  animation: popIn 180ms ease-out;
+}
+
+.fuelBadgeAdan {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.25);
+  color: var(--adan-text);
+  margin-left: 0.25rem;
+  animation: popIn 180ms ease-out;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Status Footer */
@@ -178,8 +213,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
   border-radius: var(--radius-sm);
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
@@ -193,4 +228,9 @@
   background: var(--bg-surface-hover);
   color: var(--text-primary);
   border-color: var(--border-strong);
+}
+
+.btnRightIcon {
+  margin-left: 0.2rem;
+  opacity: 0.7;
 }

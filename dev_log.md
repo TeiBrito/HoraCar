@@ -34,4 +34,8 @@
   - `src/components/Calendar/CalendarView.tsx`: Integración de avisos de taller e ITV directamente en los días del calendario.
   - `src/components/Header.tsx`: Pestañas para alternar entre "Turnos y Calendario" y "Mantenimiento & ITV" con contador de alertas pendientes.
   - `src/components/FuelTurn/FuelToggleWidget.tsx`: Widget de **Interruptor Táctil de Turno de Gasolina** para alternar entre Tei y Adán con sincronización en tiempo real (`settings/fuel_turn`), fondo deslizante y badge alineado a la derecha.
+- **Correcciones y optimizaciones móviles**:
+  - `src/components/BookingModal/modal.module.css`: Corregido el bloqueo de scroll en smartphones al seleccionar "Rango / Varios Días". Se ha añadido contención de viewport (`max-height: min(90vh, calc(100dvh - 2rem))` y `calc(100dvh - 1rem)` en móviles), scroll interno fluido (`overflow-y: auto`, `-webkit-overflow-scrolling: touch`), cabecera anclada y espaciados compactos para garantizar acceso inmediato al botón de confirmación.
+  - `src/components/Maintenance/maintenanceModal.module.css` y `src/components/FirebaseModal/firebaseModal.module.css`: Aplicada la misma arquitectura responsiva y fluida para asegurar desplazamiento táctil perfecto en todas las pantallas.
 - **Estado final**: Aplicación completa, optimizada y sincronizada en tiempo real con Firebase Firestore y Vercel.
+

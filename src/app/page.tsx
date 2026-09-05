@@ -8,6 +8,7 @@ import { StatsSummary } from '@/components/Stats/StatsSummary';
 import { BookingModal } from '@/components/BookingModal/BookingModal';
 import { MaintenanceSection } from '@/components/Maintenance/MaintenanceSection';
 import { MaintenanceModal } from '@/components/Maintenance/MaintenanceModal';
+import { FuelToggleWidget } from '@/components/FuelTurn/FuelToggleWidget';
 import { FirebaseConfigModal } from '@/components/FirebaseModal/FirebaseConfigModal';
 import {
   subscribeToBookings,
@@ -21,6 +22,11 @@ import {
   toggleMaintenanceCompleted,
   removeMaintenance,
 } from '@/lib/maintenanceService';
+import {
+  subscribeToFuelTurn,
+  setFuelDriver,
+  toggleFuelTurn,
+} from '@/lib/fuelService';
 import { isFirebaseConfigured } from '@/lib/firebase';
 import {
   Booking,
@@ -29,6 +35,7 @@ import {
   MaintenanceItem,
   MaintenanceType,
   MaintenanceResponsible,
+  FuelTurnState,
 } from '@/types';
 import { Plus } from 'lucide-react';
 import styles from './page.module.css';
@@ -37,6 +44,7 @@ export default function HomePage() {
   const [activeView, setActiveView] = useState<'calendar' | 'maintenance'>('calendar');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [maintenanceItems, setMaintenanceItems] = useState<MaintenanceItem[]>([]);
+  const [fuelState, setFuelState] = useState<FuelTurnState>({ currentDriver: 'tei' });
   const [filterDriver, setFilterDriver] = useState<DriverId | 'all'>('all');
   
   // Booking Modal states
@@ -62,9 +70,14 @@ export default function HomePage() {
       setMaintenanceItems(updated);
     });
 
+    const unsubFuel = subscribeToFuelTurn((updated) => {
+      setFuelState(updated);
+    });
+
     return () => {
       unsubBookings();
       unsubMaint();
+      unsubFuel();
     };
   }, []);
 
@@ -172,8 +185,13 @@ export default function HomePage() {
               />
             </section>
 
-            {/* Sidebar: Stats + Upcoming */}
+            {/* Sidebar: Fuel Turn + Stats + Upcoming */}
             <aside className={styles.sidebarSection}>
+              <FuelToggleWidget
+                fuelState={fuelState}
+                onSetDriver={setFuelDriver}
+                onToggleTurn={() => toggleFuelTurn(fuelState)}
+              />
               <StatsSummary bookings={bookings} />
               <UpcomingList
                 bookings={bookings}

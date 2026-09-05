@@ -98,3 +98,10 @@ export const MAINTENANCE_TYPE_INFO: Record<
     iconName: 'Sliders',
   },
 };
+
+export interface FuelTurnState {
+  currentDriver: DriverId; // 'tei' | 'adan'
+  lastRefueledAt?: string; // Fecha en que se echó por última vez
+  lastRefueledBy?: DriverId;
+}
+

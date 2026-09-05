@@ -33,4 +33,5 @@
   - `src/components/Maintenance/MaintenanceModal.tsx`: Modal para crear/editar mantenimientos con selección de tipo, fecha, encargado, coste y kilometraje.
   - `src/components/Calendar/CalendarView.tsx`: Integración de avisos de taller e ITV directamente en los días del calendario.
   - `src/components/Header.tsx`: Pestañas para alternar entre "Turnos y Calendario" y "Mantenimiento & ITV" con contador de alertas pendientes.
-  - `src/components/FuelTurn/FuelToggleWidget.tsx`: Widget de **Interruptor Táctil de Turno de Gasolina** para alternar entre Tei y Adán con sincronización en tiempo real (`settings/fuel_turn`) y botón de paso de turno rápido.
+  - `src/components/FuelTurn/FuelToggleWidget.tsx`: Widget de **Interruptor Táctil de Turno de Gasolina** para alternar entre Tei y Adán con sincronización en tiempo real (`settings/fuel_turn`), fondo deslizante y badge alineado a la derecha.
+- **Estado final**: Aplicación completa, optimizada y sincronizada en tiempo real con Firebase Firestore y Vercel.

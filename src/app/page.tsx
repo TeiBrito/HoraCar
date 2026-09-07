@@ -32,6 +32,7 @@ import {
   getDeviceDriver,
   getNotificationPermissionStatus,
   registerDeviceForPush,
+  subscribeToLiveNotifications,
   listenForegroundMessages,
 } from '@/lib/notificationsService';
 import { isFirebaseConfigured } from '@/lib/firebase';
@@ -74,7 +75,8 @@ export default function HomePage() {
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   const refreshNotificationState = () => {
-    setActiveDriverDevice(getDeviceDriver());
+    const current = getDeviceDriver();
+    setActiveDriverDevice(current);
     setIsNotificationsEnabled(getNotificationPermissionStatus() === 'granted');
   };
 
@@ -99,6 +101,9 @@ export default function HomePage() {
       setFuelState(updated);
     });
 
+    const current = getDeviceDriver();
+    const unsubLiveNotif = subscribeToLiveNotifications(current);
+
     const unsubForegroundPush = listenForegroundMessages((payload) => {
       console.log('Aviso recibido en primer plano:', payload);
     });
@@ -107,6 +112,7 @@ export default function HomePage() {
       unsubBookings();
       unsubMaint();
       unsubFuel();
+      unsubLiveNotif();
       unsubForegroundPush();
     };
   }, []);

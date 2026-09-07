@@ -1,6 +1,7 @@
 import { doc, onSnapshot, setDoc, Firestore } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
 import { FuelTurnState, DriverId } from '@/types';
+import { notifyDriverChange } from './notificationsService';
 
 const LOCAL_STORAGE_FUEL_KEY = 'horacar_fuel_turn_v1';
 
@@ -85,20 +86,29 @@ export const subscribeToFuelTurn = (
 };
 
 export const setFuelDriver = async (driver: DriverId): Promise<void> => {
-  const current = isFirebaseConfigured ? null : getLocalFuelState();
+  const refueledBy = driver === 'tei' ? 'adan' : 'tei';
   const newState: FuelTurnState = {
     currentDriver: driver,
     lastRefueledAt: new Date().toISOString().split('T')[0],
-    lastRefueledBy: driver === 'tei' ? 'adan' : 'tei',
+    lastRefueledBy: refueledBy,
   };
 
   if (isFirebaseConfigured && db) {
     const docRef = doc(db as Firestore, 'settings', 'fuel_turn');
     await setDoc(docRef, newState, { merge: true });
-    return;
+  } else {
+    saveLocalFuelState(newState);
   }
 
-  saveLocalFuelState(newState);
+  const senderName = refueledBy === 'tei' ? 'Tei' : 'Adán';
+  const targetName = driver === 'tei' ? 'Tei' : 'Adán';
+
+  notifyDriverChange({
+    sender: refueledBy,
+    title: `Cambio de Turno de Gasolina`,
+    body: `${senderName} repostó. Ahora le toca pagar gasolina a ${targetName}.`,
+    type: 'fuel',
+  }).catch(() => {});
 };
 
 export const toggleFuelTurn = async (currentState: FuelTurnState): Promise<void> => {

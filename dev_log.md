@@ -39,3 +39,15 @@
   - `src/components/Maintenance/maintenanceModal.module.css` y `src/components/FirebaseModal/firebaseModal.module.css`: Aplicada la misma arquitectura responsiva y fluida para asegurar desplazamiento táctil perfecto en todas las pantallas.
 - **Estado final**: Aplicación completa, optimizada y sincronizada en tiempo real con Firebase Firestore y Vercel.
 
+## Sesión: 2026-09-07
+- **Objetivo**: Integrar sistema de notificaciones push en vivo con Firebase Cloud Messaging (FCM) y Web Push para alertar en tiempo real a Tei y Adán ante cualquier cambio, y vincular la base de datos de producción `horacar-494d1` con experiencia sin fricción (cero configuración manual para el usuario).
+- **Implementado**:
+  - `src/lib/firebase.ts`: Credenciales embebidas por defecto para el proyecto `horacar-494d1` y VAPID Key pública. La app se conecta a Firestore y FCM inmediatamente en cualquier dispositivo o despliegue sin requerir configuración manual.
+  - `public/firebase-messaging-sw.js`: Service Worker dedicado para gestionar recepciones push en segundo plano con las credenciales del proyecto `horacar-494d1`, badges, icono de app y foco táctil al pulsar la notificación.
+  - `src/lib/notificationsService.ts`: Servicio reactivo para pedir permisos de navegador, registrar tokens FCM por conductor (`push_tokens` en Firestore y `localStorage`), emitir notificaciones cruzadas y escuchar mensajes en primer plano.
+  - `src/app/api/notify/route.ts`: Endpoint dinámico en Next.js para despachar avisos automáticos entre Tei y Adán.
+  - `src/lib/bookingsService.ts`, `src/lib/fuelService.ts` y `src/lib/maintenanceService.ts`: Integrado el disparador de notificaciones automático en la creación/edición/borrado de turnos, cambio de turno de repostaje y avisos de taller/ITV.
+  - `src/app/page.tsx` & `page.module.css`: Creado banner superior de 1 solo toque (*"Avisos en el móvil: [Soy Tei] [Soy Adán]"*) para activación instantánea de notificaciones push sin menús técnicos.
+  - `src/components/Notifications/NotificationModal.tsx` & `notificationsModal.module.css`: Modal táctil con selector de identidad de dispositivo ("Soy Tei" / "Soy Adán"), estado de permisos y botón para lanzar notificación de prueba.
+  - `src/components/Header.tsx` & `header.module.css`: Integrado botón con campana de avisos en la cabecera indicando el conductor activo registrado en el dispositivo.
+- **Estado del build**: Verificado y compilado sin errores con `next build`. Conectado y listo para producción sin fricción.

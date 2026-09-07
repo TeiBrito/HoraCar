@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
 import { Booking } from '@/types';
+import { notifyDriverChange, getDeviceDriver } from './notificationsService';
 
 const LOCAL_STORAGE_KEY = 'horacar_bookings_v1';
 
@@ -142,22 +143,35 @@ export const saveBooking = async (booking: {
   if (isFirebaseConfigured && db) {
     const docRef = doc(db as Firestore, 'bookings', id);
     await setDoc(docRef, record);
-    return;
-  }
-
-  const current = getLocalBookings();
-  const existingIndex = current.findIndex((b) => b.id === id);
-  let updated: Booking[];
-
-  if (existingIndex >= 0) {
-    updated = [...current];
-    updated[existingIndex] = record;
   } else {
-    // Si la misma fecha ya tiene asignación completa u otra, se añade
-    updated = [...current, record];
+    const current = getLocalBookings();
+    const existingIndex = current.findIndex((b) => b.id === id);
+    let updated: Booking[];
+
+    if (existingIndex >= 0) {
+      updated = [...current];
+      updated[existingIndex] = record;
+    } else {
+      updated = [...current, record];
+    }
+    saveLocalBookings(updated);
   }
 
-  saveLocalBookings(updated);
+  // Notificar al otro conductor
+  const driverName = booking.driver === 'tei' ? 'Tei' : 'Adán';
+  const slotLabels: Record<string, string> = {
+    all_day: 'Todo el día',
+    morning: 'Mañana (08:00 - 14:00)',
+    afternoon: 'Tarde (14:00 - 20:00)',
+    night: 'Noche (20:00 - 08:00)',
+  };
+
+  notifyDriverChange({
+    sender: booking.driver,
+    title: `${driverName} ha reservado el coche`,
+    body: `${booking.date} · ${slotLabels[booking.slot] || booking.slot}${booking.note ? ` (${booking.note})` : ''}`,
+    type: 'booking',
+  }).catch(() => {});
 };
 
 export const getDateRangeArray = (startStr: string, endStr: string): string[] => {
@@ -185,28 +199,54 @@ export const saveBookingRange = async (params: {
   note?: string;
 }): Promise<void> => {
   const dates = getDateRangeArray(params.startDate, params.endDate);
-  
   if (dates.length === 0) return;
 
   for (const date of dates) {
-    await saveBooking({
+    const id = `${date}_${params.slot}_${Date.now()}`;
+    const record: Booking = {
+      id,
       date,
       driver: params.driver,
       slot: params.slot,
-      note: params.note,
-    });
+      note: params.note?.trim() || '',
+      createdAt: Date.now(),
+    };
+
+    if (isFirebaseConfigured && db) {
+      const docRef = doc(db as Firestore, 'bookings', id);
+      await setDoc(docRef, record);
+    } else {
+      const current = getLocalBookings();
+      saveLocalBookings([...current, record]);
+    }
   }
+
+  // Notificar rango
+  const driverName = params.driver === 'tei' ? 'Tei' : 'Adán';
+  notifyDriverChange({
+    sender: params.driver,
+    title: `${driverName} ha reservado varios días`,
+    body: `Del ${params.startDate} al ${params.endDate}${params.note ? ` (${params.note})` : ''}`,
+    type: 'booking',
+  }).catch(() => {});
 };
 
 export const removeBooking = async (id: string): Promise<void> => {
   if (isFirebaseConfigured && db) {
     const docRef = doc(db as Firestore, 'bookings', id);
     await deleteDoc(docRef);
-    return;
+  } else {
+    const current = getLocalBookings();
+    const updated = current.filter((b) => b.id !== id);
+    saveLocalBookings(updated);
   }
 
-  const current = getLocalBookings();
-  const updated = current.filter((b) => b.id !== id);
-  saveLocalBookings(updated);
+  const sender = getDeviceDriver();
+  const driverName = sender === 'tei' ? 'Tei' : 'Adán';
+  notifyDriverChange({
+    sender,
+    title: `${driverName} ha liberado una reserva`,
+    body: `Se ha cancelado una franja del coche.`,
+    type: 'booking',
+  }).catch(() => {});
 };
-

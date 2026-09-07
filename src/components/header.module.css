@@ -59,6 +59,39 @@
   font-weight: 400;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notifBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.notifBadge:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.notifActive {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--driver-tei-accent, #818cf8);
+  background: rgba(99, 102, 241, 0.08);
+}
+
 .syncBadge {
   display: inline-flex;
   align-items: center;
@@ -71,6 +104,7 @@
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
   color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .syncBadge:hover {
@@ -220,6 +254,10 @@
 @media (max-width: 768px) {
   .header {
     padding: 1rem;
+  }
+  .headerActions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
   .bottomRow {
     flex-direction: column;

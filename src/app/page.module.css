@@ -5,6 +5,89 @@
   background: var(--bg-app);
 }
 
+.notifBanner {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(245, 158, 11, 0.12));
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.6rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.notifBannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+.notifBannerLeft strong {
+  font-weight: 600;
+}
+
+.notifBannerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bannerBtnTei {
+  background: var(--driver-tei-surface);
+  color: var(--driver-tei-accent);
+  border: 1px solid var(--driver-tei-border);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all var(--transition-fast);
+}
+
+.bannerBtnTei:hover {
+  background: rgba(99, 102, 241, 0.25);
+}
+
+.bannerBtnAdan {
+  background: var(--driver-adan-surface);
+  color: var(--driver-adan-accent);
+  border: 1px solid var(--driver-adan-border);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all var(--transition-fast);
+}
+
+.bannerBtnAdan:hover {
+  background: rgba(245, 158, 11, 0.25);
+}
+
+.bannerCloseBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.bannerCloseBtn:hover {
+  color: var(--text-primary);
+}
+
 .mainContent {
   flex: 1;
   padding: 1.5rem;

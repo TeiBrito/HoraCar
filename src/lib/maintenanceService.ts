@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
 import { MaintenanceItem } from '@/types';
+import { notifyDriverChange, getDeviceDriver } from './notificationsService';
 
 const LOCAL_STORAGE_MAINTENANCE_KEY = 'horacar_maintenance_v1';
 
@@ -148,46 +149,69 @@ export const saveMaintenance = async (item: {
   if (isFirebaseConfigured && db) {
     const docRef = doc(db as Firestore, 'maintenance', id);
     await setDoc(docRef, record);
-    return;
-  }
-
-  const current = getLocalMaintenance();
-  const existingIndex = current.findIndex((m) => m.id === id);
-  let updated: MaintenanceItem[];
-
-  if (existingIndex >= 0) {
-    updated = [...current];
-    updated[existingIndex] = record;
   } else {
-    updated = [...current, record];
+    const current = getLocalMaintenance();
+    const existingIndex = current.findIndex((m) => m.id === id);
+    let updated: MaintenanceItem[];
+
+    if (existingIndex >= 0) {
+      updated = [...current];
+      updated[existingIndex] = record;
+    } else {
+      updated = [...current, record];
+    }
+    saveLocalMaintenance(updated);
   }
 
-  saveLocalMaintenance(updated);
+  const sender = getDeviceDriver();
+  const senderName = sender === 'tei' ? 'Tei' : 'Adán';
+  notifyDriverChange({
+    sender,
+    title: `Aviso de Mantenimiento / ITV`,
+    body: `${senderName}: ${record.title} programado para el ${record.date}`,
+    type: 'maintenance',
+  }).catch(() => {});
 };
 
 export const toggleMaintenanceCompleted = async (
   id: string,
   completed: boolean
 ): Promise<void> => {
+  let title = 'Mantenimiento';
   if (isFirebaseConfigured && db) {
     const docRef = doc(db as Firestore, 'maintenance', id);
     await setDoc(docRef, { completed }, { merge: true });
-    return;
+  } else {
+    const current = getLocalMaintenance();
+    const updated = current.map((m) => {
+      if (m.id === id) {
+        title = m.title;
+        return { ...m, completed };
+      }
+      return m;
+    });
+    saveLocalMaintenance(updated);
   }
 
-  const current = getLocalMaintenance();
-  const updated = current.map((m) => (m.id === id ? { ...m, completed } : m));
-  saveLocalMaintenance(updated);
+  if (completed) {
+    const sender = getDeviceDriver();
+    const senderName = sender === 'tei' ? 'Tei' : 'Adán';
+    notifyDriverChange({
+      sender,
+      title: `Mantenimiento Completado`,
+      body: `${senderName} marcó como realizado: ${title}`,
+      type: 'maintenance',
+    }).catch(() => {});
+  }
 };
 
 export const removeMaintenance = async (id: string): Promise<void> => {
   if (isFirebaseConfigured && db) {
     const docRef = doc(db as Firestore, 'maintenance', id);
     await deleteDoc(docRef);
-    return;
+  } else {
+    const current = getLocalMaintenance();
+    const updated = current.filter((m) => m.id !== id);
+    saveLocalMaintenance(updated);
   }
-
-  const current = getLocalMaintenance();
-  const updated = current.filter((m) => m.id !== id);
-  saveLocalMaintenance(updated);
 };

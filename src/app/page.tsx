@@ -10,6 +10,7 @@ import { MaintenanceSection } from '@/components/Maintenance/MaintenanceSection'
 import { MaintenanceModal } from '@/components/Maintenance/MaintenanceModal';
 import { FuelToggleWidget } from '@/components/FuelTurn/FuelToggleWidget';
 import { FirebaseConfigModal } from '@/components/FirebaseModal/FirebaseConfigModal';
+import { NotificationModal } from '@/components/Notifications/NotificationModal';
 import {
   subscribeToBookings,
   saveBooking,
@@ -27,6 +28,12 @@ import {
   setFuelDriver,
   toggleFuelTurn,
 } from '@/lib/fuelService';
+import {
+  getDeviceDriver,
+  getNotificationPermissionStatus,
+  registerDeviceForPush,
+  listenForegroundMessages,
+} from '@/lib/notificationsService';
 import { isFirebaseConfigured } from '@/lib/firebase';
 import {
   Booking,
@@ -37,7 +44,7 @@ import {
   MaintenanceResponsible,
   FuelTurnState,
 } from '@/types';
-import { Plus } from 'lucide-react';
+import { Plus, Bell, X } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function HomePage() {
@@ -47,6 +54,12 @@ export default function HomePage() {
   const [fuelState, setFuelState] = useState<FuelTurnState>({ currentDriver: 'tei' });
   const [filterDriver, setFilterDriver] = useState<DriverId | 'all'>('all');
   
+  // Notification states
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState<boolean>(false);
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState<boolean>(false);
+  const [activeDriverDevice, setActiveDriverDevice] = useState<DriverId>('tei');
+  const [isBannerDismissed, setIsBannerDismissed] = useState<boolean>(false);
+
   // Booking Modal states
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [editingBooking, setEditingBooking] = useState<Booking | undefined>(undefined);
@@ -60,8 +73,20 @@ export default function HomePage() {
   const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
+  const refreshNotificationState = () => {
+    setActiveDriverDevice(getDeviceDriver());
+    setIsNotificationsEnabled(getNotificationPermissionStatus() === 'granted');
+  };
+
   useEffect(() => {
     setIsMounted(true);
+    refreshNotificationState();
+
+    const dismissed = localStorage.getItem('horacar_notif_banner_dismissed');
+    if (dismissed === 'true') {
+      setIsBannerDismissed(true);
+    }
+
     const unsubBookings = subscribeToBookings((updated) => {
       setBookings(updated);
     });
@@ -74,12 +99,29 @@ export default function HomePage() {
       setFuelState(updated);
     });
 
+    const unsubForegroundPush = listenForegroundMessages((payload) => {
+      console.log('Aviso recibido en primer plano:', payload);
+    });
+
     return () => {
       unsubBookings();
       unsubMaint();
       unsubFuel();
+      unsubForegroundPush();
     };
   }, []);
+
+  const handleQuickRegister = async (driver: DriverId) => {
+    await registerDeviceForPush(driver);
+    refreshNotificationState();
+    setIsBannerDismissed(true);
+    localStorage.setItem('horacar_notif_banner_dismissed', 'true');
+  };
+
+  const handleDismissBanner = () => {
+    setIsBannerDismissed(true);
+    localStorage.setItem('horacar_notif_banner_dismissed', 'true');
+  };
 
   const handleOpenDate = (dateStr: string, existing?: Booking) => {
     setSelectedDate(dateStr);
@@ -168,8 +210,47 @@ export default function HomePage() {
         filterDriver={filterDriver}
         onFilterChange={setFilterDriver}
         onOpenFirebaseConfig={() => setIsFirebaseModalOpen(true)}
+        onOpenNotifications={() => setIsNotificationModalOpen(true)}
+        isNotificationsEnabled={isNotificationsEnabled}
+        activeDriverDevice={activeDriverDevice}
         pendingMaintenanceCount={pendingMaintenanceCount}
       />
+
+      {/* Zero-friction Notification Activation Banner */}
+      {!isNotificationsEnabled && !isBannerDismissed && (
+        <div className={styles.notifBanner}>
+          <div className={styles.notifBannerLeft}>
+            <Bell size={15} />
+            <span>
+              <strong>Avisos en el móvil:</strong> Activa las notificaciones para enterarte cuando se use el coche.
+            </span>
+          </div>
+          <div className={styles.notifBannerActions}>
+            <button
+              type="button"
+              className={styles.bannerBtnTei}
+              onClick={() => handleQuickRegister('tei')}
+            >
+              Soy Tei
+            </button>
+            <button
+              type="button"
+              className={styles.bannerBtnAdan}
+              onClick={() => handleQuickRegister('adan')}
+            >
+              Soy Adán
+            </button>
+            <button
+              type="button"
+              className={styles.bannerCloseBtn}
+              onClick={handleDismissBanner}
+              title="Ocultar aviso"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className={styles.mainContent}>
         {activeView === 'calendar' ? (
@@ -252,6 +333,16 @@ export default function HomePage() {
         }}
         onSave={handleSaveMaintenance}
         onDelete={handleDeleteMaintenance}
+      />
+
+      {/* Notification Settings Modal */}
+      <NotificationModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => {
+          setIsNotificationModalOpen(false);
+          refreshNotificationState();
+        }}
+        onStatusChange={refreshNotificationState}
       />
 
       {/* Firebase Cloud Info Modal */}

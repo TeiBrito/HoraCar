@@ -6,6 +6,8 @@ import {
   Wrench,
   ListFilter,
   Database,
+  Bell,
+  BellRing,
 } from 'lucide-react';
 import { DriverId } from '@/types';
 import styles from './header.module.css';
@@ -17,6 +19,9 @@ interface HeaderProps {
   filterDriver: DriverId | 'all';
   onFilterChange: (driver: DriverId | 'all') => void;
   onOpenFirebaseConfig: () => void;
+  onOpenNotifications: () => void;
+  isNotificationsEnabled: boolean;
+  activeDriverDevice: DriverId;
   pendingMaintenanceCount: number;
 }
 
@@ -27,6 +32,9 @@ export const Header: React.FC<HeaderProps> = ({
   filterDriver,
   onFilterChange,
   onOpenFirebaseConfig,
+  onOpenNotifications,
+  isNotificationsEnabled,
+  activeDriverDevice,
   pendingMaintenanceCount,
 }) => {
   return (
@@ -46,23 +54,45 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        <button
-          onClick={onOpenFirebaseConfig}
-          className={`${styles.syncBadge} ${isCloudConnected ? styles.syncOnline : styles.syncOffline}`}
-          title="Configuración de sincronización en tiempo real"
-        >
-          {isCloudConnected ? (
-            <>
-              <span className={styles.statusDot} />
-              <span>Firebase Nube</span>
-            </>
-          ) : (
-            <>
-              <Database size={13} />
-              <span>Modo Local (Configurar Nube)</span>
-            </>
-          )}
-        </button>
+        <div className={styles.headerActions}>
+          {/* Push Notifications Button */}
+          <button
+            onClick={onOpenNotifications}
+            className={`${styles.notifBadge} ${isNotificationsEnabled ? styles.notifActive : ''}`}
+            title="Configurar notificaciones en tiempo real para este dispositivo"
+          >
+            {isNotificationsEnabled ? (
+              <>
+                <BellRing size={13} />
+                <span>Avisos ({activeDriverDevice === 'tei' ? 'Tei' : 'Adán'})</span>
+              </>
+            ) : (
+              <>
+                <Bell size={13} />
+                <span>Activar avisos</span>
+              </>
+            )}
+          </button>
+
+          {/* Firebase Sync Status */}
+          <button
+            onClick={onOpenFirebaseConfig}
+            className={`${styles.syncBadge} ${isCloudConnected ? styles.syncOnline : styles.syncOffline}`}
+            title="Configuración de sincronización en tiempo real"
+          >
+            {isCloudConnected ? (
+              <>
+                <span className={styles.statusDot} />
+                <span>Firebase Nube</span>
+              </>
+            ) : (
+              <>
+                <Database size={13} />
+                <span>Modo Local</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Main View Switcher & Filters Row */}

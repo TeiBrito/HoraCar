@@ -51,3 +51,15 @@
   - `src/components/Notifications/NotificationModal.tsx` & `notificationsModal.module.css`: Modal táctil con selector de identidad de dispositivo ("Soy Tei" / "Soy Adán"), estado de permisos y botón para lanzar notificación de prueba.
   - `src/components/Header.tsx` & `header.module.css`: Integrado botón con campana de avisos en la cabecera indicando el conductor activo registrado en el dispositivo.
 - **Estado del build**: Verificado y compilado sin errores con `next build`. Conectado y listo para producción sin fricción.
+
+## Sesión: 2026-09-08
+- **Objetivo**: Solucionar el envío real de notificaciones push entre dispositivos de Tei y Adán (con la app en segundo plano o cerrada) e integrar Firebase Admin SDK en el backend.
+- **Diagnóstico**:
+  - La prueba en el modal ejecutaba un `new Notification()` local en el dispositivo propio dando la sensación de funcionar, pero la llamada `/api/notify` no tenía credenciales de servidor (`FIREBASE_SERVER_KEY` / Service Account) ni enviaba a los tokens de `push_tokens`.
+- **Implementado**:
+  - `horacar-*-firebase-adminsdk-*.json`: Añadida regla a `.gitignore` para proteger las credenciales privadas.
+  - `.env.local`: Añadidas `FIREBASE_CLIENT_EMAIL` y `FIREBASE_PRIVATE_KEY` para el entorno local y preparadas para Vercel.
+  - `src/lib/firebaseAdmin.ts`: Creado módulo de inicialización singleton de Firebase Admin SDK (Firestore y Cloud Messaging FCM HTTP v1).
+  - `src/app/api/notify/route.ts`: Reescrito el dispatcher para consultar tokens de `push_tokens` del conductor destinatario en Firestore y despachar con `adminMessaging.sendEachForMulticast` con limpieza automática de tokens expirados.
+  - `src/lib/notificationsService.ts`: Mejorada la gestión de tokens (`token_${token.slice(-24)}`) para evitar duplicados y actualizar la escucha reactiva en vivo dinámicamente con `getDeviceDriver()`.
+  - `src/components/Notifications/NotificationModal.tsx`: Actualizado el botón de prueba para enviar un aviso push real desde el servidor hacia el token del propio dispositivo.

@@ -66,21 +66,22 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
   const handleSendTest = async () => {
     setTestSent(true);
     const driverName = selectedDriver === 'tei' ? 'Tei' : 'Adán';
-    await notifyDriverChange({
-      sender: selectedDriver,
-      title: `Aviso de prueba (${driverName})`,
-      body: `El sistema de notificaciones de HoraCar está conectado y funcionando correctamente.`,
-      type: 'test',
-    });
 
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('HoraCar: Prueba de aviso', {
-        body: `Notificaciones activas para ${driverName}.`,
-        icon: '/logo.jpg',
+    try {
+      // Disparar aviso push real desde el servidor hacia este dispositivo
+      await notifyDriverChange({
+        sender: selectedDriver,
+        targetDriver: selectedDriver,
+        title: `HoraCar: Prueba de aviso (${driverName})`,
+        body: `El sistema de notificaciones push de HoraCar está conectado y funcionando correctamente.`,
+        type: 'test',
       });
+      setMessage(`Aviso push de prueba enviado al dispositivo.`);
+    } catch {
+      setMessage(`Error enviando aviso de prueba.`);
     }
 
-    setTimeout(() => setTestSent(false), 3000);
+    setTimeout(() => setTestSent(false), 3500);
   };
 
   const isGranted = permissionStatus === 'granted';

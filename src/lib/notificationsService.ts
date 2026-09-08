@@ -79,6 +79,7 @@ export async function registerDeviceForPush(driver: DriverId): Promise<{ success
       return { success: true, token: 'local_token' };
     }
 
+    let fcmToken: string | undefined;
     try {
       const messaging: Messaging = getMessaging(app);
       const token = await getToken(messaging, {
@@ -87,23 +88,29 @@ export async function registerDeviceForPush(driver: DriverId): Promise<{ success
       });
 
       if (token) {
+        fcmToken = token;
         localStorage.setItem(STORAGE_KEY_TOKEN, token);
         if (db) {
-          const tokenDocId = `${driver}_${token.slice(-16)}`;
+          // Usar identificador único por token para evitar duplicados si se cambia de conductor
+          const tokenDocId = `token_${token.slice(-24)}`;
           const tokenRef = doc(db, 'push_tokens', tokenDocId);
-          await setDoc(tokenRef, {
-            driver,
-            token,
-            userAgent: navigator.userAgent,
-            updatedAt: new Date().toISOString(),
-          }, { merge: true });
+          await setDoc(
+            tokenRef,
+            {
+              driver,
+              token,
+              userAgent: navigator.userAgent,
+              updatedAt: new Date().toISOString(),
+            },
+            { merge: true }
+          );
         }
       }
     } catch (fcmErr) {
       console.warn('FCM Token aviso:', fcmErr);
     }
 
-    return { success: true };
+    return { success: true, token: fcmToken };
   } catch (error: any) {
     console.error('Error registrando notificaciones push:', error);
     return { success: false, error: error?.message || 'Error al activar notificaciones.' };
@@ -116,11 +123,10 @@ export async function registerDeviceForPush(driver: DriverId): Promise<{ success
 export async function unregisterDevicePush(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   const token = localStorage.getItem(STORAGE_KEY_TOKEN);
-  const driver = getDeviceDriver();
 
   try {
     if (db && token) {
-      const tokenDocId = `${driver}_${token.slice(-16)}`;
+      const tokenDocId = `token_${token.slice(-24)}`;
       await deleteDoc(doc(db, 'push_tokens', tokenDocId));
     }
     localStorage.removeItem(STORAGE_KEY_TOKEN);
@@ -136,17 +142,19 @@ export async function unregisterDevicePush(): Promise<boolean> {
  */
 export async function notifyDriverChange(params: {
   sender: DriverId;
+  targetDriver?: DriverId;
   title: string;
   body: string;
   type?: 'booking' | 'fuel' | 'maintenance' | 'test';
 }): Promise<void> {
-  const { sender, title, body, type = 'booking' } = params;
+  const { sender, targetDriver, title, body, type = 'booking' } = params;
 
   // 1. Guardar evento en Firestore en tiempo real
   if (db) {
     try {
       await addDoc(collection(db, 'activity_notifications'), {
         sender,
+        targetDriver: targetDriver || (sender === 'tei' ? 'adan' : 'tei'),
         title,
         body,
         type,
@@ -165,6 +173,7 @@ export async function notifyDriverChange(params: {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sender,
+        targetDriver,
         title,
         body,
         type,
@@ -179,7 +188,7 @@ export async function notifyDriverChange(params: {
  * Suscripción reactiva en tiempo real a los avisos de Firestore
  */
 export function subscribeToLiveNotifications(
-  currentDriver: DriverId,
+  _driver?: DriverId,
   callback?: (notification: { title: string; body: string; type: string }) => void
 ): () => void {
   if (!db) return () => {};
@@ -192,8 +201,9 @@ export function subscribeToLiveNotifications(
     snapshot.docChanges().forEach((change) => {
       if (change.type === 'added') {
         const data = change.doc.data();
+        const activeDriver = getDeviceDriver();
         // Solo avisar si el cambio viene del OTRO conductor y fue emitido después de abrir la app
-        if (data.sender !== currentDriver && data.timestamp && data.timestamp >= startedAt - 3000) {
+        if (data.sender !== activeDriver && data.timestamp && data.timestamp >= startedAt - 3000) {
           if (callback) {
             callback({
               title: data.title || 'HoraCar',
